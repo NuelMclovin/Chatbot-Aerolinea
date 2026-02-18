@@ -15,7 +15,7 @@ Dudas_Re = r"[dD]udas?|[pP]reguntas?|[cC]onsultas?|[iI]nformaci[oó]n|[aA]clarac
 Estadovuelo_RE = r"[eE]sta(do|tus) (de |del )?vuelo|[vV]uelo|[eE]st[aá] (retrasado|a tiempo|cancelado)|[hH]ora (de )?(salida|llegada|abordaje)|[pP]uerta (de )?(abordaje|embarque)?|[nN][uú]mero (de )?vuelo|[cC]onsultar (mi )?vuelo|[vV]erificar vuelo|[dD][oó]nde (est[aá]|se encuentra) (mi )?vuelo|[sS]eguimiento (de |del )?vuelo|[rR]astrear vuelo|[aA]terrizar|[dD]espegar|[dD]espegue|[aA]terrizaje|[mM]i vuelo (es|sale|llega)|[cC]hec(k|ar) vuelo"
 
 afirmacion_RE = r"[Ss][íi|] ([Cc]laro|[Gg]racias)|[Cc]laro|[dD]efinitivamente|[Pp]or supuesto|[Gg]racias|[Pp]or favor|[sS][íi]"
-salir_RE = r"[sS]alir|[mM]e equivoque|[pP]erd[oó]n|[aA]di[óo]s|[lL]a cague|[uU]ps|[sS]orry|[eE]rror|[Nn]o|[fF]all[ao]|[sS]kype|[dD]eseo (salir|interrumpir)| "
+salir_RE = r"[sS]alir|[mM]e equivoque|[pP]erd[oó]n|[aA]di[óo]s|[lL]a cague|[uU]ps|[sS]orry|[eE]rror|[Nn]o|[fF]all[ao]|[sS]kype|[dD]eseo (salir|interrumpir)|[nN]op|[nN]el "
 
 
 state = 0
@@ -185,27 +185,7 @@ while salida:
 
         tarifa = input("\nSelecciona el numero de tu tarifa \n\t\t").strip()
 
-        tarifas_info = {
-            "1": {
-                "nombre": "Light",
-                "equipaje_mano": "1 maleta de mano (10 kg) + 1 artículo personal",
-                "equipaje_documentado": "No incluido (se compra por separado)",
-                "costo_primera": "$600 - $800 aproximado"
-            },
-            "2": {
-                "nombre": "Plus",
-                "equipaje_mano": "1 maleta de mano (10 kg) + 1 artículo personal",
-                "equipaje_documentado": "1 maleta documentada (25 kg) incluida",
-                "costo_adicional": "$800 - $1,200 por maleta adicional"
-            },
-            "3": {
-                "nombre": "Viva",
-                "equipaje_mano": "1 maleta de mano (10 kg) + 1 artículo personal",
-                "equipaje_documentado": "1 maleta documentada (25 kg) incluida",
-                "extras": "Asiento preferente y abordaje prioritario incluidos",
-                "costo_adicional": "$800 - $1,200 por maleta adicional"
-            }
-        }
+        from tarifas_info import tarifas_info
 
         if tarifa in tarifas_info:
             info = tarifas_info[tarifa]
