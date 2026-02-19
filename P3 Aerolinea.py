@@ -17,6 +17,17 @@ Estadovuelo_RE = r"[eE]sta(do|tus) (de |del )?vuelo|[vV]uelo|[eE]st[aá] (retras
 afirmacion_RE = r"[Ss][íi|] ([Cc]laro|[Gg]racias)|[Cc]laro|[dD]efinitivamente|[Pp]or supuesto|[Gg]racias|[Pp]or favor|[sS][íi]"
 salir_RE = r"[sS]alir|[mM]e equivoque|[pP]erd[oó]n|[aA]di[óo]s|[lL]a cague|[uU]ps|[sS]orry|[eE]rror|[Nn]o|[fF]all[ao]|[sS]kype|[dD]eseo (salir|interrumpir)|[nN]op|[nN]el "
 
+# Lenguaje natural para promodicones
+Promo2x1_RE = r"[dD]os (x|por) [uU]no|2x1|[vV]uelos [iI]nternacionales|[iI]nternacionales|[eE]xtranjero|[fF]uera (de|del) pais"
+PromoNac_RE = r"[vV]uelos [nN]acionales|[nN]acionales|[iI]nternos|[dD]entro|"
+PromoEst_RE = r"[eE]studiantes|[aA]lumnos|20[%|[pP]orciento])|[eE]educaci[o|ó]n"
+PromoEqp_RE = r"[eE]quipaje|[gG]ratis|[mM]aleta"
+
+# Lenguaje natural para menu de asistencia equipaje
+equipMano_RE = r"[eE]quipaje de [mM]ano|[mM]ano"
+equipDoc1_RE = r"[pP]rime[r|ra ] [mM]aleta|[dD]ocumentad[a|o]|[eE]quipaje principal"
+equipExt_RE = r"[eE]xtr[a|as]|[aA]dicional"
+equipEsp_RE = r"[aA]rticul[o|os]|[eE]specia[l|les]"
 
 state = 0
 salida = 1
@@ -29,7 +40,7 @@ while salida:
     if state == 0:
         print("Hola soy el chatbot de Vivaerobus ¿En qué te puedo ayudar?\n")
         time.sleep(1)
-        opcion = input(saludo + "\t")
+        opcion = input(saludo + "\n\t")
         if re.findall(Promo_RE, opcion, flags=0) != []:
             state = 1
         elif re.findall(Asis_Re, opcion, flags=0) != []:
@@ -45,9 +56,32 @@ while salida:
         else:
             state = 100
 
-    if state == 1: #opcion de promociones
+    # opcion de promociones
+    if state == 1:
         print("PROMOCIONES VIVAEROBUS")
-        from promociones import promociones
+
+        promociones = {
+            "1": {
+                "nombre": "Vuelos Nacionales desde $599",
+                "detalle": "Viaja por México desde $599 pesos. Aplica en rutas seleccionadas.",
+                "vigencia": "Válido hasta el 28 de febrero 2026"
+            },
+            "2": {
+                "nombre": "2x1 en vuelos internacionales",
+                "detalle": "Compra un vuelo internacional y lleva a un acompañante gratis.",
+                "vigencia": "Válido para viajes entre marzo y junio 2026"
+            },
+            "3": {
+                "nombre": "20% de descuento para estudiantes",
+                "detalle": "Presenta tu credencial vigente y obtén 20% de descuento.",
+                "vigencia": "Válido todo el año 2026"
+            },
+            "4": {
+                "nombre": "Equipaje documentado gratis",
+                "detalle": "Añade hasta 25kg de equipaje sin costo adicional en vuelos seleccionados.",
+                "vigencia": "Válido hasta el 31 de marzo 2026"
+            }
+        }
 
         # Mostrar lista de promociones
         for key, promo in promociones.items():
@@ -55,23 +89,91 @@ while salida:
 
         # Preguntar si quiere ver detalles
         time.sleep(0.5)
-        opcion_promo = input("\nSi te gustaria revisar algun detalle de alguna promocion, solo indicame el numero de la misma \n\t\t").strip()
+        opcion_promo = input("\nQué promoción es de la que te gustaría tener más detalles \n\t\t").strip()
 
-        if opcion_promo in promociones:
-            promo_seleccionada = promociones[opcion_promo]
-            print(f"{promo_seleccionada['nombre']}")
-            print(f"\nDetalle: {promo_seleccionada['detalle']}")
-            print(f"Vigencia: {promo_seleccionada['vigencia']}")
-            print("\nPara reservar, visita https://www.vivaaerobus.com/es-mx/ o llama al 818-215-0000")
-        elif opcion_promo.lower() not in ['no', 'n', 'salir']:
-            print("\nLo siento, no existe esa opcion")
+        if re.findall(Promo2x1_RE, opcion_promo, flags=0) != []:
+            for valor in promociones["2"]:
+                print(f"{promociones["2"][valor]}")
+        elif re.findall(PromoNac_RE, opcion_promo, flags=0) != []:
+            for valor in promociones["1"]:
+                print(f"{promociones["1"][valor]}")
+        elif re.findall(PromoEst_RE, opcion_promo, flags=0) != []:
+            for valor in promociones["3"]:
+                print(f"{promociones["3"][valor]}")
+        elif re.findall(PromoEqp_RE, opcion_promo, flags=0) != []:
+            for valor in promociones["4"]:
+                print(f"{promociones["4"][valor]}")
+
 
         state = 2
-    if state == 6: #opcion de asistencia con equipaje
+
+    # opcion de asistencia con equipaje
+    if state == 6:
         print("ASISTENCIA CON EQUIPAJE")
 
         # Información de equipaje
-        from info_equipaje import info_equipaje
+        info_equipaje = {
+            "1": {
+                "tipo": "Equipaje de Mano",
+                "peso_max": "10 kg",
+                "dimensiones": "55 x 40 x 20 cm (largo x ancho x alto)",
+                "detalles": [
+                    "Debe caber en el compartimento superior o debajo del asiento",
+                    "Incluye 1 artículo personal (bolso, mochila pequeña)",
+                    "Sin costo adicional",
+                    "Permitido en todas las tarifas"
+                ],
+                "restricciones": [
+                    "No puede contener líquidos mayores a 100ml",
+                    "Líquidos deben ir en bolsa transparente"
+                ]
+            },
+            "2": {
+                "tipo": "Equipaje Documentado (Primera maleta)",
+                "peso_max": "25 kg",
+                "dimensiones": "158 cm lineales (suma de largo + ancho + alto)",
+                "detalles": [
+                    "Se documenta en el mostrador o en línea",
+                    "Costo depende de la tarifa y ruta",
+                    "Tarifa Light: $600 - $800 (aproximado)",
+                    "Tarifa Plus/Viva: Incluida sin costo"
+                ],
+                "restricciones": [
+                    "Peso máximo 25 kg por maleta",
+                    "Exceso de peso: $150 por cada 5 kg adicionales"
+                ]
+            },
+            "3": {
+                "tipo": "Equipaje Adicional (Segunda maleta o más)",
+                "peso_max": "25 kg por maleta",
+                "dimensiones": "158 cm lineales por maleta",
+                "detalles": [
+                    "Segunda maleta: $800 - $1,200 (aproximado)",
+                    "Tercera maleta: $1,200 - $1,500 (aproximado)",
+                    "Los precios varían según ruta y temporada"
+                ],
+                "restricciones": [
+                    "Máximo 5 maletas por pasajero",
+                    "Sujeto a disponibilidad de espacio en la aeronave"
+                ]
+            },
+            "4": {
+                "tipo": "Artículos Especiales",
+                "peso_max": "Variable según artículo",
+                "dimensiones": "Variable según artículo",
+                "detalles": [
+                    "Instrumentos musicales: pueden ir como equipaje de mano si caben",
+                    "Bicicletas: $800 - $1,500 (deben ir en caja)",
+                    "Tablas de surf: $800 - $1,500",
+                    "Equipo deportivo: $600 - $1,200",
+                    "Mascotas: consultar políticas especiales"
+                ],
+                "restricciones": [
+                    "Deben empacarse adecuadamente",
+                    "Algunos requieren notificación previa"
+                ]
+            }
+        }
 
         print("\nTipos de equipaje disponibles:\n")
         time.sleep(2)
@@ -80,57 +182,17 @@ while salida:
             print(f"Peso máximo: {equip['peso_max']}")
             print(f"Dimensiones: {equip['dimensiones']}\n")
 
-
         # Preguntar qué información necesita
         time.sleep(2)
-        opcion_equip = input("\nIndicame sobre que numero de opcion quieres obtener detalle o si de todos los casos \n\t\t").strip()
-
-        if opcion_equip.lower() == 'todo' or opcion_equip.lower() == 'todos':
-            # Mostrar toda la información
-            print("INFORMACIÓN COMPLETA DE EQUIPAJE")
-            for key, equip in info_equipaje.items():
-                print(f"\n{key}. {equip['tipo']}")
-                print(f"Peso máximo: {equip['peso_max']}")
-                print(f"Dimensiones: {equip['dimensiones']}")
-                print("\nInformación importante:")
-                for detalle in equip['detalles']:
-                    print(f"      • {detalle}")
-                if equip.get('restricciones'):
-                    print("\nRestricciones:")
-                    for restriccion in equip['restricciones']:
-                        print(f"      • {restriccion}")
+        opcion_equip = input("\nNecesitas más informacion de alguna de ellas? \n\t\t").strip()
+        if re.findall(afirmacion_RE, opcion_equip, flags=0) != []:
+            opcion = input("\n De cual de ellas? \n\n\t")
+            #if re.findall(equipMano_RE, opcion, flags=0) != []:
+                #for carac in
 
 
-        elif opcion_equip in info_equipaje:
-            # Mostrar información específica
-            equip_seleccionado = info_equipaje[opcion_equip]
-            print(f"{equip_seleccionado['tipo']}")
-            print(f"\nPeso máximo permitido: {equip_seleccionado['peso_max']}")
-            print(f"Dimensiones máximas: {equip_seleccionado['dimensiones']}")
+        #else
 
-            print("\nInformación importante:")
-            for detalle in equip_seleccionado['detalles']:
-                print(f"   • {detalle}")
-
-            if equip_seleccionado.get('restricciones'):
-                print("\n⚠Restricciones:")
-                for restriccion in equip_seleccionado['restricciones']:
-                    print(f"   • {restriccion}")
-
-
-            # Ofrecer ayuda adicional
-            time.sleep(0.5)
-            ayuda_extra = input("\n¿Necesitas información sobre otro tipo de equipaje? \n\t\t").strip()
-            if re.findall(afirmacion_RE, ayuda_extra, flags=0) != []:
-                state = 7  # Estado para ver otro tipo de equipaje
-            else:
-                state = 2  # Continuar al menú de seguimiento
-
-        elif opcion_equip.lower() not in ['no', 'n', 'salir']:
-            print("\nOpción no válida.")
-            state = 2
-        else:
-            state = 2
 
         # Información general adicional
         if state == 6:  # Si no cambió el estado, mostrar tips generales
@@ -146,7 +208,6 @@ while salida:
             8. Descarga la app Vivaerobus para rastrear tu equipaje
             """)
 
-
             # Preguntar si quiere calcular equipaje
             time.sleep(0.5)
             calcular = input("\n¿Deseas calcular cuánto equipaje puedes llevar según tu tarifa? \n\t\t").strip()
@@ -155,7 +216,8 @@ while salida:
             else:
                 state = 2
 
-    if state == 7:  # Ver otro tipo de equipaje
+    # Ver otro tipo de equipaje
+    if state == 7:
 
         info_equipaje = {
             "1": {"tipo": "Equipaje de Mano"},
@@ -175,7 +237,31 @@ while salida:
             print("\nOpción no válida.")
             state = 2
 
-    if state == 8:  # Calcular equipaje según tarifa
+    # Calcular equipaje según tarifa
+    if state == 8:
+        tarifas_info = {
+            "1": {
+                "nombre": "Light",
+                "equipaje_mano": "1 maleta de mano (10 kg) + 1 artículo personal",
+                "equipaje_documentado": "No incluido (se compra por separado)",
+                "costo_primera": "$600 - $800 aproximado"
+            },
+            "2": {
+                "nombre": "Plus",
+                "equipaje_mano": "1 maleta de mano (10 kg) + 1 artículo personal",
+                "equipaje_documentado": "1 maleta documentada (25 kg) incluida",
+                "costo_adicional": "$800 - $1,200 por maleta adicional"
+            },
+            "3": {
+                "nombre": "Viva",
+                "equipaje_mano": "1 maleta de mano (10 kg) + 1 artículo personal",
+                "equipaje_documentado": "1 maleta documentada (25 kg) incluida",
+                "extras": "Asiento preferente y abordaje prioritario incluidos",
+                "costo_adicional": "$800 - $1,200 por maleta adicional"
+            }
+        }
+
+
         print("\nCALCULADORA DE EQUIPAJE POR TARIFA")
 
         print("\n¿Qué tarifa compraste?\n")
@@ -184,9 +270,6 @@ while salida:
         print("3. Viva (todo incluido)")
 
         tarifa = input("\nSelecciona el numero de tu tarifa \n\t\t").strip()
-
-        from tarifas_info import tarifas_info
-
         if tarifa in tarifas_info:
             info = tarifas_info[tarifa]
             print(f"\nTarifa {info['nombre']}")
@@ -204,12 +287,13 @@ while salida:
 
         state = 2
 
+    # info destinos
+    #if state == 11:
 
 
-
-
+    # Estado de continuación después de ejecutar acción
     if state == 2:
-        # Estado de continuación después de ejecutar accion
+
         time.sleep(0.5)
         opcion_continuar = input("\n¿Te puedo ayudar en algo más?\n\t\t").strip()
 
@@ -220,11 +304,13 @@ while salida:
         else:
             state = 0
 
+    # Estado de Despedida
     if state == 99:
         print("Gracias por usar Vivaerobus Chatbot, ")
         print("Que tengas un excelente dia")
         salida = 0
 
+    #Estado de error
     if state == 100:
         print("\nLo siento, no entendí tu solicitud.")
         print("Por favor, intenta reformular tu pregunta o elige una de las opciones disponibles.\n")
