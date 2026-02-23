@@ -29,6 +29,10 @@ equipDoc1_RE = r"[pP]rime[r|ra ] [mM]aleta|[dD]ocumentad[a|o]|[eE]quipaje princi
 equipExt_RE = r"[eE]xtr[a|as]|[aA]dicional"
 equipEsp_RE = r"[aA]rticul[o|os]|[eE]specia[l|les]"
 
+tipoPlus_RE = r"[pP]lus"
+tipoViva_RE = r"[vV]iva"
+tipoLitgh_RE = r"[lL]itgh|[lL]ithg|[lL]ihg|[lL]igh|[lL]ith"
+
 state = 0
 salida = 1
 
@@ -183,15 +187,26 @@ while salida:
             print(f"Dimensiones: {equip['dimensiones']}\n")
 
         # Preguntar qué información necesita
-        time.sleep(2)
+        time.sleep(1)
         opcion_equip = input("\nNecesitas más informacion de alguna de ellas? \n\t\t").strip()
         if re.findall(afirmacion_RE, opcion_equip, flags=0) != []:
+
             opcion = input("\n De cual de ellas? \n\n\t")
-            #if re.findall(equipMano_RE, opcion, flags=0) != []:
-                #for carac in
+            if re.findall(equipMano_RE, opcion, flags=0) != []:
+                for detalle in info_equipaje["1"]["detalles"]:
+                    print(f"{detalle}")
 
+            elif re.findall(equipDoc1_RE, opcion, flags=0) != []:
+                for detalle in info_equipaje["2"]["detalles"]:
+                    print(f"{detalle}")
 
-        #else
+            elif re.findall(equipExt_RE, opcion, flags=0) != []:
+                for detalle in info_equipaje["3"]["detalles"]:
+                    print(f"{detalle}")
+
+            elif re.findall(equipEsp_RE, opcion, flags=0) != []:
+                for detalle in info_equipaje["4"]["detalles"]:
+                    print(f"{detalle}")
 
 
         # Información general adicional
@@ -216,27 +231,6 @@ while salida:
             else:
                 state = 2
 
-    # Ver otro tipo de equipaje
-    if state == 7:
-
-        info_equipaje = {
-            "1": {"tipo": "Equipaje de Mano"},
-            "2": {"tipo": "Equipaje Documentado (Primera maleta)"},
-            "3": {"tipo": "Equipaje Adicional"},
-            "4": {"tipo": "Artículos Especiales"}
-        }
-
-        print("Tipos de equipaje:\n")
-        for key, equip in info_equipaje.items():
-            print(f"{key}. {equip['tipo']}")
-
-        opcion = input("\nIndicame el numero de la opcion que deseas consultar\n\t\t ").strip()
-        if opcion in ["1", "2", "3", "4"]:
-            state = 6  # Regresar al estado 6 para mostrar la info
-        else:
-            print("\nOpción no válida.")
-            state = 2
-
     # Calcular equipaje según tarifa
     if state == 8:
         tarifas_info = {
@@ -260,32 +254,94 @@ while salida:
                 "costo_adicional": "$800 - $1,200 por maleta adicional"
             }
         }
-
-
         print("\nCALCULADORA DE EQUIPAJE POR TARIFA")
-
-        print("\n¿Qué tarifa compraste?\n")
         print("1. Light (la más económica)")
         print("2. Plus (incluye equipaje documentado)")
         print("3. Viva (todo incluido)")
 
-        tarifa = input("\nSelecciona el numero de tu tarifa \n\t\t").strip()
-        if tarifa in tarifas_info:
-            info = tarifas_info[tarifa]
-            print(f"\nTarifa {info['nombre']}")
-            print(f"\nEquipaje de mano: {info['equipaje_mano']}")
-            print(f"Equipaje documentado: {info['equipaje_documentado']}")
-            if 'costo_primera' in info:
-                print(f"Costo primera maleta documentada: {info['costo_primera']}")
-            if 'costo_adicional' in info:
-                print(f"Maletas adicionales: {info['costo_adicional']}")
-            if 'extras' in info:
-                print(f"Extras: {info['extras']}")
+        tarifa = input("\nQue tarifa adquiriste?  \n\t\t").strip()
 
+        if re.findall(tipoLitgh_RE, tarifa, flags=0) != []:
+            print(f"\n{'='*60}")
+            print(f"TARIFA: {tarifas_info['1']['nombre']}")
+            print(f"{'='*60}")
+            for key, valor in tarifas_info["1"].items():
+                if key != "nombre":
+                    print(f"{key.replace('_', ' ').title()}: {valor}")
+
+            # Calcular costo de maletas adicionales
+            maletas_extra = input("\n¿Cuántas maletas documentadas necesitas llevar? (ingresa un número): ").strip()
+            if maletas_extra.isdigit():
+                num_maletas = int(maletas_extra)
+                if num_maletas > 0:
+                    costo_estimado = num_maletas * 700  # Promedio entre 600-800
+                    print(f"\nCOSTO ESTIMADO:")
+                    print(f"{num_maletas} maleta(s) documentada(s): ${costo_estimado:,} MXN")
+                    print(f"Rango de precio: ${num_maletas * 600:,} - ${num_maletas * 800:,} MXN")
+                else:
+                    print("\nNo llevarás equipaje documentado.")
+                    print("Solo podrás llevar tu equipaje de mano (10 kg) + 1 artículo personal.")
+
+            state = 2
+
+        elif re.findall(tipoPlus_RE, tarifa, flags=0) != []:
+            print(f"\n{'='*60}")
+            print(f"TARIFA: {tarifas_info['2']['nombre']}")
+            print(f"{'='*60}")
+            for key, valor in tarifas_info["2"].items():
+                if key != "nombre":
+                    print(f"{key.replace('_', ' ').title()}: {valor}")
+
+            # Calcular maletas adicionales
+            maletas_extra = input("\n¿Cuántas maletas adicionales (además de la incluida) necesitas? (ingresa un número o 0): ").strip()
+            if maletas_extra.isdigit():
+                num_maletas = int(maletas_extra)
+                if num_maletas > 0:
+                    costo_estimado = num_maletas * 1000  # Promedio entre 800-1200
+                    print(f"\nINCLUIDA EN TU TARIFA:")
+                    print("✓ 1 maleta documentada (25 kg)")
+                    print(f"\nMALETAS ADICIONALES:")
+                    print(f"{num_maletas} maleta(s) adicional(es): ${costo_estimado:,} MXN")
+                    print(f"Rango de precio: ${num_maletas * 800:,} - ${num_maletas * 1200:,} MXN")
+                else:
+                    print("\nINCLUIDA EN TU TARIFA:")
+                    print("✓ 1 maleta documentada (25 kg)")
+                    print("No necesitas pagar por maletas adicionales.")
+
+            state = 2
+
+        elif re.findall(tipoViva_RE, tarifa, flags=0) != []:
+            print(f"\n{'='*60}")
+            print(f"TARIFA: {tarifas_info['3']['nombre']}")
+            print(f"{'='*60}")
+            for key, valor in tarifas_info["3"].items():
+                if key != "nombre":
+                    print(f"{key.replace('_', ' ').title()}: {valor}")
+
+            # Calcular maletas adicionales
+            maletas_extra = input("\n¿Cuántas maletas adicionales (además de la incluida) necesitas? (ingresa un número o 0): ").strip()
+            if maletas_extra.isdigit():
+                num_maletas = int(maletas_extra)
+                if num_maletas > 0:
+                    costo_estimado = num_maletas * 1000  # Promedio entre 800-1200
+                    print(f"\nINCLUIDA EN TU TARIFA:")
+                    print("✓ 1 maleta documentada (25 kg)")
+                    print("✓ Asiento preferente")
+                    print("✓ Abordaje prioritario")
+                    print(f"\nMALETAS ADICIONALES:")
+                    print(f"{num_maletas} maleta(s) adicional(es): ${costo_estimado:,} MXN")
+                    print(f"Rango de precio: ${num_maletas * 800:,} - ${num_maletas * 1200:,} MXN")
+                else:
+                    print("\nINCLUIDA EN TU TARIFA:")
+                    print("✓ 1 maleta documentada (25 kg)")
+                    print("✓ Asiento preferente")
+                    print("✓ Abordaje prioritario")
+                    print("No necesitas pagar por maletas adicionales.")
+
+            state = 2
         else:
-            print("\nOpción no válida.")
-
-        state = 2
+            print("\nNo reconocí esa tarifa. Por favor elige entre Light (1), Plus (2) o Viva (3).")
+            state = 8  # Volver a preguntar
 
     # info destinos
     #if state == 11:
